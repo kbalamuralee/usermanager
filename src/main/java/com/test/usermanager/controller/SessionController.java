@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.test.usermanager.exception.UserNotFoundException;
 import com.test.usermanager.model.UserDetails;
 import com.test.usermanager.repository.UserDetailsRepository;
 
@@ -23,11 +24,11 @@ public class SessionController {
 		String password = input.get("password");
 		Optional<UserDetails> userOpt = repo.findByPhone(phone);
 		if (!userOpt.isPresent()) {
-			throw new RuntimeException("Invalid phone number.");
+			throw new UserNotFoundException();
 		}
 		UserDetails user = userOpt.get();
 		if (!password.equals(user.getPassword())) {
-			throw new RuntimeException("Invalid password.");
+			throw new InvalidPasswordException();
 		}
 		return user;
 	}

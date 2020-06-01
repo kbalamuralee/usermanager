@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.test.usermanager.exception.UserNotFoundException;
 import com.test.usermanager.model.UserDetails;
 import com.test.usermanager.repository.UserDetailsRepository;
 
@@ -35,12 +36,12 @@ public class UserController {
 			ret.put("phone", userOpt.get().getPhone());
 			return ret;
 		}
-		throw new RuntimeException("User not found.");
+		throw new UserNotFoundException();
 	}
 
 	@GetMapping("/user/{id}")
 	public UserDetails fetchUser(@PathVariable Long id) {
-		return repo.findById(id).orElseThrow(() -> new RuntimeException("User not found."));
+		return repo.findById(id).orElseThrow(() -> new UserNotFoundException());
 	}
 
 	@GetMapping("/user/all")
@@ -55,11 +56,11 @@ public class UserController {
 		String name = input.get("name");
 		Optional<UserDetails> userOpt = repo.findByName(name);
 		if (!userOpt.isPresent()) {
-			throw new RuntimeException("User not found.");
+			throw new UserNotFoundException();
 		}
 		UserDetails user = userOpt.get();
 		if (!StringUtils.isEmpty(user.getPassword()) && !user.getPassword().equals(oldPass)) {
-			throw new RuntimeException("Invalid password.");
+			throw new InvalidPasswordException();
 		}
 		user.setPassword(newPass);
 		repo.save(user);
@@ -67,11 +68,12 @@ public class UserController {
 	}
 
 	@PostMapping("/user/completeReg")
-	public UserDetails completeReg(@AuthenticationPrincipal OAuth2User principal, @RequestBody Map<String, String> input) {
+	public UserDetails completeReg(@AuthenticationPrincipal OAuth2User principal,
+			@RequestBody Map<String, String> input) {
 		String name = principal.getAttribute("login");
 		Optional<UserDetails> userOpt = repo.findByName(name);
 		if (!userOpt.isPresent()) {
-			throw new RuntimeException("User not found.");
+			throw new UserNotFoundException();
 		}
 		UserDetails user = userOpt.get();
 		user.setPhone(input.get("phone"));
@@ -82,7 +84,7 @@ public class UserController {
 
 	@GetMapping("/user/search/{phone}")
 	public UserDetails searchByPhone(@PathVariable String phone) {
-		return repo.findByPhone(phone).orElseThrow(() -> new RuntimeException("User not found."));
+		return repo.findByPhone(phone).orElseThrow(() -> new UserNotFoundException());
 	}
 
 }
