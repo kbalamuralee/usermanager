@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<title>User management</title>
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width" />
+<base href="/" />
+<link rel="stylesheet"
+	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+	crossorigin="anonymous" />
+<script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+<script type="text/javascript"
+	src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+</head>
+<body>
+	<h1>User management</h1>
+	<div class="container"></div>
+	<div class="container unauthenticated">
+		Login <input type="text" placeholder="Enter phone number" name="phone"
+			id="phoneLogin" required> <input type="password"
+			placeholder="Enter password" name="password" id="passwordLogin"
+			required>
+		<button onclick="login()">Submit</button>
+		<a href="/oauth2/authorization/github">Or register with GitHub.</a>
+	</div>
+	<div class="container completeReg" style="display: none">
+		Enter phone number and password to complete registration. <input
+			type="text" placeholder="Enter phone number" name="phone"
+			id="phoneInput" required> <input type="password"
+			placeholder="Enter password" name="password" id="passwordInput"
+			required>
+		<button onclick="completeReg()">Submit</button>
+	</div>
+	<div class="container authenticated" style="display: none">
+		Welcome, <span id="user"></span>. Change password <input
+			type="password" placeholder="Enter old password" name="oldPass"
+			id="oldPassId" required> <input type="password"
+			placeholder="Enter new password" name="newPass" id="newPassId"
+			required>
+		<div id="passMessage"></div>
+		<button onclick="changePass()">Submit</button>
+		<p>
+			Get user details by id: <input type="text"
+				placeholder="Enter user id" name="userid" id="useridId" required>
+			<button
+				onclick="fetchUser(document.getElementById('useridId').value)">Submit</button>
+		</p>
+		<p>
+			Get user details by phone number: <input type="text"
+				placeholder="Enter phone number" name="phoneSearch" id="phoneSearchId" required>
+			<button
+				onclick="search(document.getElementById('phoneSearchId').value)">Submit</button>
+		</p>
+		<p>
+			<button onclick="fetchAllUsers()">View all users</button>
+		<table id="usersTable" />
+		</p>
+		<div>
+			<button onClick="logout()" class="btn btn-primary">Logout</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$.ajaxSetup({
+			beforeSend : function(xhr, settings) {
+				if (settings.type == 'POST' || settings.type == 'PUT'
+						|| settings.type == 'DELETE') {
+					xhr.setRequestHeader("X-XSRF-TOKEN", Cookies
+							.get('XSRF-TOKEN'));
+				}
+			}
+		});
+		$.get("/user", function(data) {
+			$("#user").html(data.name);
+			if (data.phone == null || data.phone == '') {
+				$(".unauthenticated").hide()
+				$(".authenticated").hide()
+				$(".completeReg").show()
+			} else {
+				$("#usersTable tr").remove();
+				$(".unauthenticated").hide()
+				$(".completeReg").hide()
+				$(".authenticated").show()
+			}
+		});
+		var logout = function() {
+			$.post("/logout", function() {
+				$("#usersTable tr").remove();
+				$("#user").html('');
+				$(".unauthenticated").show();
+				$(".authenticated").hide();
+				$(".completeReg").hide()
+			})
+			return true;
+		}
+		var completeReg = function() {
+			$.ajax({
+				contentType : 'application/json',
+				type : "POST",
+				url : "/user/completeReg",
+				data : JSON.stringify({
+					"phone" : document.getElementById("phoneInput").value,
+					"password" : document.getElementById("passwordInput").value
+				}),
+				success : function() {
+					$(".unauthenticated").hide();
+					$(".completeReg").hide()
+					$(".authenticated").show();
+				},
+				dataType : 'json'
+			});
+			return true;
+		}
+		var login = function() {
+			$.ajax({
+				contentType : 'application/json',
+				type : "POST",
+				url : "/login",
+				data : JSON.stringify({
+					"phone" : document.getElementById("phoneLogin").value,
+					"password" : document.getElementById("passwordLogin").value
+				}),
+				success : function(data) {
+					$("#usersTable tr").remove();
+					$("#user").html(data.name);
+					$(".unauthenticated").hide();
+					$(".completeReg").hide()
+					$(".authenticated").show();
+				},
+				dataType : 'json'
+			});
+			return true;
+		}
+		var changePass = function() {
+			$
+					.ajax({
+						contentType : 'application/json',
+						type : "PUT",
+						url : "/user/set_password",
+						data : JSON
+								.stringify({
+									"name" : document.getElementById("user").innerHTML,
+									"oldPass" : document
+											.getElementById("oldPassId").value,
+									"newPass" : document
+											.getElementById("newPassId").value
+								}),
+						success : function(data) {
+							$("#usersTable tr").remove();
+							document.getElementById("passMessage").innerHTML = "Password changed."
+						},
+						dataType : 'json'
+					});
+			return true;
+		}
+		var fetchAllUsers = function() {
+			$.ajax({
+				type : "GET",
+				url : "/user/all",
+				success : function(data) {
+					$("#usersTable tr").remove();
+					var table = document.getElementById("usersTable")
+					var headerRow = table.insertRow(0)
+					headerRow.insertCell(0).innerHTML = 'ID'
+					headerRow.insertCell(1).innerHTML = 'Name'
+					headerRow.insertCell(2).innerHTML = 'Details'
+					for (var i = 0; i < data.length; i++) {
+						var row = table.insertRow(i + 1);
+						var userIdCell = row.insertCell(0);
+						userIdCell.innerHTML = data[i].id;
+						var userNameCell = row.insertCell(1);
+						userNameCell.innerHTML = data[i].name;
+						var button = row.insertCell(2);
+						button.innerHTML = "<button onclick=\"fetchUser("
+								+ data[i].id + ")\">View</button>";
+					}
+				},
+				dataType : 'json'
+			});
+			return true;
+		}
+		var fetchUser = function(id) {
+			$.ajax({
+				type : "GET",
+				url : "/user/" + id,
+				success : function(data) {
+					$("#usersTable tr").remove();
+					var table = document.getElementById("usersTable")
+					var headerRow = table.insertRow(0)
+					headerRow.insertCell(0).innerHTML = 'ID'
+					headerRow.insertCell(1).innerHTML = 'Name'
+					headerRow.insertCell(2).innerHTML = 'Phone number'
+					headerRow.insertCell(3).innerHTML = 'GitHub link'
+					var row = table.insertRow(1)
+					row.insertCell(0).innerHTML = data.id
+					row.insertCell(1).innerHTML = data.name
+					row.insertCell(2).innerHTML = data.phone
+					row.insertCell(3).innerHTML = data.meta
+				},
+				dataType : 'json'
+			});
+			return true;
+		}
+		var search = function(phone) {
+			$.ajax({
+				type : "GET",
+				url : "/user/search/" + phone,
+				success : function(data) {
+					$("#usersTable tr").remove();
+					var table = document.getElementById("usersTable")
+					var headerRow = table.insertRow(0)
+					headerRow.insertCell(0).innerHTML = 'ID'
+					headerRow.insertCell(1).innerHTML = 'Name'
+					headerRow.insertCell(2).innerHTML = 'Phone number'
+					headerRow.insertCell(3).innerHTML = 'GitHub link'
+					var row = table.insertRow(1)
+					row.insertCell(0).innerHTML = data.id
+					row.insertCell(1).innerHTML = data.name
+					row.insertCell(2).innerHTML = data.phone
+					row.insertCell(3).innerHTML = data.meta
+				},
+				dataType : 'json'
+			});
+			return true;
+		}
+	</script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: f6208aaac5427e31d178
+            clientSecret: 832cd45399b670f5864a2669ad508b53620f82bf
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  datasource:
+    platform: postgres
+    url: "jdbc:postgresql://localhost:5432/postgres"
+    username: postgres
+    password: root
