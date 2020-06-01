@@ -4,9 +4,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class Userdet {
+@Table(name = "user_details")
+public class UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,11 +24,11 @@ public class Userdet {
 
 	private String meta;
 
-	public Userdet() {
+	public UserDetails() {
 
 	}
 
-	public Userdet(Long id, String name, String password, String email, String phone, String meta) {
+	public UserDetails(Long id, String name, String password, String email, String phone, String meta) {
 		super();
 		this.id = id;
 		this.name = name;

@@ -11,14 +11,14 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.test.usermanager.model.Userdet;
-import com.test.usermanager.repository.UserdetRepository;
+import com.test.usermanager.model.UserDetails;
+import com.test.usermanager.repository.UserDetailsRepository;
 
 @Service
 public class CustomOidcUserService extends DefaultOAuth2UserService {
 
 	@Autowired
-	private UserdetRepository repo;
+	private UserDetailsRepository repo;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
@@ -39,9 +39,9 @@ public class CustomOidcUserService extends DefaultOAuth2UserService {
 			name = oAuth2User.getAttribute("login");
 			link = oAuth2User.getAttribute("url");
 		}
-		Optional<Userdet> optUser = repo.findByName(name);
+		Optional<UserDetails> optUser = repo.findByName(name);
 		if (!optUser.isPresent()) {
-			Userdet user = new Userdet();
+			UserDetails user = new UserDetails();
 			user.setName(name);
 			user.setMeta(link);
 			repo.save(user);

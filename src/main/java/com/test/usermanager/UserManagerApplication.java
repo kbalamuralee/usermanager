@@ -8,10 +8,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 
 @SpringBootApplication
-public class UsermanagerApplication extends WebSecurityConfigurerAdapter {
+public class UserManagerApplication extends WebSecurityConfigurerAdapter {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UsermanagerApplication.class, args);
+		SpringApplication.run(UserManagerApplication.class, args);
 	}
 
 	@Override

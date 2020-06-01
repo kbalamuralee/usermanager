@@ -15,6 +15,8 @@
 <script type="text/javascript"
 	src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 </head>
 <body>
 	<h1>User management</h1>
@@ -51,7 +53,8 @@
 		</p>
 		<p>
 			Get user details by phone number: <input type="text"
-				placeholder="Enter phone number" name="phoneSearch" id="phoneSearchId" required>
+				placeholder="Enter phone number" name="phoneSearch"
+				id="phoneSearchId" required>
 			<button
 				onclick="search(document.getElementById('phoneSearchId').value)">Submit</button>
 		</p>
@@ -103,7 +106,7 @@
 				url : "/user/completeReg",
 				data : JSON.stringify({
 					"phone" : document.getElementById("phoneInput").value,
-					"password" : document.getElementById("passwordInput").value
+					"password" : CryptoJS.MD5(document.getElementById("passwordInput").value).toString()
 				}),
 				success : function() {
 					$(".unauthenticated").hide();
@@ -121,7 +124,7 @@
 				url : "/login",
 				data : JSON.stringify({
 					"phone" : document.getElementById("phoneLogin").value,
-					"password" : document.getElementById("passwordLogin").value
+					"password" : CryptoJS.MD5(document.getElementById("passwordLogin").value).toString()
 				}),
 				success : function(data) {
 					$("#usersTable tr").remove();
@@ -140,13 +143,12 @@
 						contentType : 'application/json',
 						type : "PUT",
 						url : "/user/set_password",
-						data : JSON
-								.stringify({
+						data : JSON.stringify({
 									"name" : document.getElementById("user").innerHTML,
-									"oldPass" : document
-											.getElementById("oldPassId").value,
-									"newPass" : document
-											.getElementById("newPassId").value
+									"oldPass" : CryptoJS.MD5(document
+											.getElementById("oldPassId").value).toString(),
+									"newPass" : CryptoJS.MD5(document
+											.getElementById("newPassId").value).toString()
 								}),
 						success : function(data) {
 							$("#usersTable tr").remove();

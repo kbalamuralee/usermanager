@@ -16,21 +16,21 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.test.usermanager.model.Userdet;
-import com.test.usermanager.repository.UserdetRepository;
+import com.test.usermanager.model.UserDetails;
+import com.test.usermanager.repository.UserDetailsRepository;
 
 @RestController
 public class UserController {
 
 	@Autowired
-	private UserdetRepository repo;
+	private UserDetailsRepository repo;
 
 	@GetMapping("/user")
 	public Map<String, String> user(@AuthenticationPrincipal OAuth2User principal) {
 		Map<String, String> ret = new HashMap<>();
 		String name = principal.getAttribute("login");
 		ret.put("name", name);
-		Optional<Userdet> userOpt = repo.findByName(name);
+		Optional<UserDetails> userOpt = repo.findByName(name);
 		if (userOpt.isPresent()) {
 			ret.put("phone", userOpt.get().getPhone());
 			return ret;
@@ -39,25 +39,25 @@ public class UserController {
 	}
 
 	@GetMapping("/user/{id}")
-	public Userdet fetchUser(@PathVariable Long id) {
+	public UserDetails fetchUser(@PathVariable Long id) {
 		return repo.findById(id).orElseThrow(() -> new RuntimeException("User not found."));
 	}
 
 	@GetMapping("/user/all")
-	public List<Userdet> fetchAllUsers() {
+	public List<UserDetails> fetchAllUsers() {
 		return repo.findAll();
 	}
 
 	@PutMapping("/user/set_password")
-	public Userdet setPassword(@RequestBody Map<String, String> input) {
+	public UserDetails setPassword(@RequestBody Map<String, String> input) {
 		String oldPass = input.get("oldPass");
 		String newPass = input.get("newPass");
 		String name = input.get("name");
-		Optional<Userdet> userOpt = repo.findByName(name);
+		Optional<UserDetails> userOpt = repo.findByName(name);
 		if (!userOpt.isPresent()) {
 			throw new RuntimeException("User not found.");
 		}
-		Userdet user = userOpt.get();
+		UserDetails user = userOpt.get();
 		if (!StringUtils.isEmpty(user.getPassword()) && !user.getPassword().equals(oldPass)) {
 			throw new RuntimeException("Invalid password.");
 		}
@@ -67,13 +67,13 @@ public class UserController {
 	}
 
 	@PostMapping("/user/completeReg")
-	public Userdet completeReg(@AuthenticationPrincipal OAuth2User principal, @RequestBody Map<String, String> input) {
+	public UserDetails completeReg(@AuthenticationPrincipal OAuth2User principal, @RequestBody Map<String, String> input) {
 		String name = principal.getAttribute("login");
-		Optional<Userdet> userOpt = repo.findByName(name);
+		Optional<UserDetails> userOpt = repo.findByName(name);
 		if (!userOpt.isPresent()) {
 			throw new RuntimeException("User not found.");
 		}
-		Userdet user = userOpt.get();
+		UserDetails user = userOpt.get();
 		user.setPhone(input.get("phone"));
 		user.setPassword(input.get("password"));
 		repo.save(user);
@@ -81,7 +81,7 @@ public class UserController {
 	}
 
 	@GetMapping("/user/search/{phone}")
-	public Userdet searchByPhone(@PathVariable String phone) {
+	public UserDetails searchByPhone(@PathVariable String phone) {
 		return repo.findByPhone(phone).orElseThrow(() -> new RuntimeException("User not found."));
 	}
 
