@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.util.StringUtils;
@@ -15,7 +16,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.test.usermanager.exception.InvalidPasswordException;
 import com.test.usermanager.exception.UserNotFoundException;
 import com.test.usermanager.model.UserDetails;
 import com.test.usermanager.repository.UserDetailsRepository;
@@ -39,7 +42,7 @@ public class UserController {
 			ret.put("phone", userOpt.get().getPhone());
 			return ret;
 		}
-		throw new UserNotFoundException();
+		throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found.", new UserNotFoundException());
 	}
 
 	@GetMapping("/user/{id}")
@@ -95,7 +98,8 @@ public class UserController {
 
 	@GetMapping("/user/search/{phone}")
 	public UserDetails searchByPhone(@PathVariable String phone) {
-		return repo.findByPhone(phone).orElseThrow(() -> new UserNotFoundException());
+		return repo.findByPhone(phone).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+				"User not found.", new UserNotFoundException()));
 	}
 
 }

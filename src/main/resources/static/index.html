@@ -113,6 +113,9 @@
 					$(".completeReg").hide()
 					$(".authenticated").show();
 				},
+				error : function(error) {
+					alert(error.responseJSON.error)
+				},
 				dataType : 'json'
 			});
 			return true;
@@ -132,6 +135,8 @@
 					$(".unauthenticated").hide();
 					$(".completeReg").hide()
 					$(".authenticated").show();
+				},error : function(error) {
+					alert(error.responseJSON.error)
 				},
 				dataType : 'json'
 			});
@@ -153,6 +158,9 @@
 						success : function(data) {
 							$("#usersTable tr").remove();
 							document.getElementById("passMessage").innerHTML = "Password changed."
+						},
+						error : function(error) {
+							alert(error.responseJSON.error)
 						},
 						dataType : 'json'
 					});
@@ -202,6 +210,9 @@
 					row.insertCell(2).innerHTML = data.phone
 					row.insertCell(3).innerHTML = data.meta
 				},
+				error : function(error) {
+					alert(error.responseJSON.error)
+				},
 				dataType : 'json'
 			});
 			return true;
@@ -223,6 +234,9 @@
 					row.insertCell(1).innerHTML = data.name
 					row.insertCell(2).innerHTML = data.phone
 					row.insertCell(3).innerHTML = data.meta
+				},
+				error : function(error) {
+					alert(error.responseJSON.error)
 				},
 				dataType : 'json'
 			});

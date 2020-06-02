@@ -1,4 +1,4 @@
-package com.test.usermanager.controller;
+package com.test.usermanager.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
