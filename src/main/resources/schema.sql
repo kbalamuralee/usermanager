@@ -1,3 +1,4 @@
+--postgres creates indexes on unique columns by default, so separate index not required
 CREATE TABLE user_details(
 	id serial PRIMARY KEY,
 	name VARCHAR (50) NOT NULL,

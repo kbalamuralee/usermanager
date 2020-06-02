@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import com.test.usermanager.model.UserDetails;
 import com.test.usermanager.repository.UserDetailsRepository;
 
+/* 
+ * Overrides the default user service and stores user data in table
+ * if unregistered.
+ */
 @Service
 public class CustomOidcUserService extends DefaultOAuth2UserService {
 

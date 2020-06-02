@@ -26,6 +26,9 @@ public class UserController {
 	@Autowired
 	private UserDetailsRepository repo;
 
+	/*
+	 * Endpoint for fetching currently logged in user's data.
+	 */
 	@GetMapping("/user")
 	public Map<String, String> user(@AuthenticationPrincipal OAuth2User principal) {
 		Map<String, String> ret = new HashMap<>();
@@ -49,6 +52,9 @@ public class UserController {
 		return repo.findAll();
 	}
 
+	/*
+	 * Endpoint for changing password.
+	 */
 	@PutMapping("/user/set_password")
 	public UserDetails setPassword(@RequestBody Map<String, String> input) {
 		String oldPass = input.get("oldPass");
@@ -67,6 +73,11 @@ public class UserController {
 		return user;
 	}
 
+	/*
+	 * Endpoint for completing registration by entering phone and password. This is
+	 * because phone is necessary for the user to login, and might not be obtained
+	 * from the external sign up details.
+	 */
 	@PostMapping("/user/completeReg")
 	public UserDetails completeReg(@AuthenticationPrincipal OAuth2User principal,
 			@RequestBody Map<String, String> input) {
